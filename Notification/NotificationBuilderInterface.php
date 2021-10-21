@@ -107,6 +107,13 @@ interface NotificationBuilderInterface
     public function warning($message = null, array $options = array());
 
     /**
+     * @param string $title
+     *
+     * @return self
+     */
+    public function title($title);
+
+    /**
      * @param int $priority
      *
      * @return self

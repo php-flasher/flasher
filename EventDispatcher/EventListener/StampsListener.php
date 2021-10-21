@@ -9,6 +9,7 @@ use Flasher\Prime\Stamp\CreatedAtStamp;
 use Flasher\Prime\Stamp\DelayStamp;
 use Flasher\Prime\Stamp\HopsStamp;
 use Flasher\Prime\Stamp\PriorityStamp;
+use Flasher\Prime\Stamp\TitleStamp;
 use Flasher\Prime\Stamp\UuidStamp;
 
 final class StampsListener implements EventSubscriberInterface
@@ -51,6 +52,10 @@ final class StampsListener implements EventSubscriberInterface
 
         if (null === $envelope->get('Flasher\Prime\Stamp\PriorityStamp')) {
             $envelope->withStamp(new PriorityStamp(0));
+        }
+
+        if (null === $envelope->get('Flasher\Prime\Stamp\TitleStamp')) {
+            $envelope->withStamp(new TitleStamp(''));
         }
     }
 }

@@ -8,6 +8,7 @@ use Flasher\Prime\Stamp\HandlerStamp;
 use Flasher\Prime\Stamp\HopsStamp;
 use Flasher\Prime\Stamp\PriorityStamp;
 use Flasher\Prime\Stamp\StampInterface;
+use Flasher\Prime\Stamp\TitleStamp;
 use Flasher\Prime\Storage\StorageManagerInterface;
 
 class NotificationBuilder implements NotificationBuilderInterface
@@ -156,6 +157,13 @@ class NotificationBuilder implements NotificationBuilderInterface
     public function warning($message = null, array $options = array())
     {
         return $this->type(NotificationInterface::TYPE_WARNING, $message, $options);
+    }
+
+    public function title($title)
+    {
+        $this->envelope->withStamp(new TitleStamp($title));
+
+        return $this;
     }
 
     public function priority($priority)
