@@ -7,7 +7,7 @@
 
 namespace Flasher\Prime\Template;
 
-interface EngineInterface
+interface TemplateEngineInterface
 {
     /**
      * @param string               $name

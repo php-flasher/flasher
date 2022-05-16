@@ -7,27 +7,27 @@
 
 namespace Flasher\Prime\Stamp;
 
-final class HandlerStamp implements StampInterface, PresentableStampInterface
+final class ViewStamp implements StampInterface, PresentableStampInterface
 {
     /**
      * @var string
      */
-    private $handler;
+    private $view;
 
     /**
-     * @param string $handler
+     * @param string $template
      */
-    public function __construct($handler)
+    public function __construct($template)
     {
-        $this->handler = $handler;
+        $this->view = $template;
     }
 
     /**
      * @return string
      */
-    public function getHandler()
+    public function getView()
     {
-        return $this->handler;
+        return $this->view;
     }
 
     /**
@@ -35,6 +35,6 @@ final class HandlerStamp implements StampInterface, PresentableStampInterface
      */
     public function toArray()
     {
-        return array('handler' => $this->getHandler());
+        return array('view' => $this->getView());
     }
 }

@@ -1,8 +1,12 @@
 <?php
 
-namespace Flasher\Prime;
+/*
+ * This file is part of the PHPFlasher package.
+ * (c) Younes KHOUBZA <younes.khoubza@gmail.com>
+ */
 
-use Flasher\Prime\Notification\NotificationInterface;
+namespace Flasher\Prime\Notification;
+
 use Flasher\Prime\Stamp\PresentableStampInterface;
 use Flasher\Prime\Stamp\StampInterface;
 
@@ -14,43 +18,57 @@ final class Envelope implements NotificationInterface
     private $notification;
 
     /**
-     * @template T of StampInterface
-     *
-     * @var array<string, T>
+     * @var array<class-string<StampInterface>, StampInterface>
      */
     private $stamps = array();
 
     /**
-     * @param StampInterface[]|StampInterface      $stamps
+     * @param StampInterface|StampInterface[] $stamps
      */
     public function __construct(NotificationInterface $notification, $stamps = array())
     {
         $this->notification = $notification;
-        $this->with(is_array($stamps) ? $stamps : array_slice(func_get_args(), 1));
+        $this->with(\is_array($stamps) ? $stamps : \array_slice(\func_get_args(), 1));
+    }
+
+    /**
+     * Dynamically call methods on the notification.
+     *
+     * @param string  $method
+     * @param mixed[] $parameters
+     *
+     * @return mixed
+     */
+    public function __call($method, array $parameters)
+    {
+        /** @var callable $callback */
+        $callback = array($this->getNotification(), $method);
+
+        return \call_user_func_array($callback, $parameters);
     }
 
     /**
      * Makes sure the notification is in an Envelope and adds the given stamps.
      *
-     * @param StampInterface[]|StampInterface      $stamps
+     * @param StampInterface|StampInterface[] $stamps
      *
-     * @return self
+     * @return static
      */
     public static function wrap(NotificationInterface $notification, $stamps = array())
     {
         $envelope = $notification instanceof self ? $notification : new self($notification);
 
-        return $envelope->with(is_array($stamps) ? $stamps : array_slice(func_get_args(), 1));
+        return $envelope->with(\is_array($stamps) ? $stamps : \array_slice(\func_get_args(), 1));
     }
 
     /**
-     * @param StampInterface[]|StampInterface $stamps
+     * @param StampInterface|StampInterface[] $stamps
      *
-     * @return self a new Envelope instance with additional stamp
+     * @return static
      */
     public function with($stamps)
     {
-        $stamps = is_array($stamps) ? $stamps : func_get_args();
+        $stamps = \is_array($stamps) ? $stamps : \func_get_args();
 
         foreach ($stamps as $stamp) {
             $this->withStamp($stamp);
@@ -60,23 +78,23 @@ final class Envelope implements NotificationInterface
     }
 
     /**
-     * @return $this
+     * @return static
      */
     public function withStamp(StampInterface $stamp)
     {
-        $this->stamps[get_class($stamp)] = $stamp;
+        $this->stamps[\get_class($stamp)] = $stamp;
 
         return $this;
     }
 
     /**
-     * @param StampInterface[]|StampInterface $stamps
+     * @param StampInterface|StampInterface[] $stamps
      *
-     * @return self A new Envelope instance without any stamps of the given class
+     * @return static
      */
     public function without($stamps)
     {
-        $stamps = is_array($stamps) ? $stamps : func_get_args();
+        $stamps = \is_array($stamps) ? $stamps : \func_get_args();
 
         foreach ($stamps as $stamp) {
             $this->withoutStamp($stamp);
@@ -86,13 +104,13 @@ final class Envelope implements NotificationInterface
     }
 
     /**
-     * @param string|StampInterface $type
+     * @param class-string<StampInterface>|StampInterface $type
      *
-     * @return self
+     * @return static
      */
     public function withoutStamp($type)
     {
-        $type = $type instanceof StampInterface ? get_class($type) : $type;
+        $type = $type instanceof StampInterface ? \get_class($type) : $type;
 
         unset($this->stamps[$type]);
 
@@ -100,11 +118,9 @@ final class Envelope implements NotificationInterface
     }
 
     /**
-     * @template T of StampInterface
+     * @param class-string<StampInterface> $stampFqcn
      *
-     * @param class-string<T> $stampFqcn
-     *
-     * @return T|null
+     * @return StampInterface|null
      */
     public function get($stampFqcn)
     {
@@ -112,14 +128,13 @@ final class Envelope implements NotificationInterface
             return null;
         }
 
-        // @phpstan-ignore-next-line
         return $this->stamps[$stampFqcn];
     }
 
     /**
-     * All stamps by their class name
+     * All stamps by their class name.
      *
-     * @return StampInterface[]
+     * @return array<class-string<StampInterface>, StampInterface>
      */
     public function all()
     {
@@ -127,7 +142,7 @@ final class Envelope implements NotificationInterface
     }
 
     /**
-     * The original notification contained in the envelope
+     * The original notification contained in the envelope.
      *
      * @return NotificationInterface
      */
@@ -136,51 +151,97 @@ final class Envelope implements NotificationInterface
         return $this->notification;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getType()
     {
         return $this->notification->getType();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setType($type)
     {
-        $this->notification->setType($type);
+        return $this->notification->setType($type); // @phpstan-ignore-line
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getMessage()
     {
         return $this->notification->getMessage();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setMessage($message)
     {
-        $this->notification->setMessage($message);
+        return $this->notification->setMessage($message); // @phpstan-ignore-line
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getTitle()
+    {
+        return $this->notification->getTitle();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setTitle($title)
+    {
+        return $this->notification->setMessage($title); // @phpstan-ignore-line
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getOptions()
     {
         return $this->notification->getOptions();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setOptions(array $options)
     {
-        $this->notification->setOptions($options);
+        return $this->notification->setOptions($options); // @phpstan-ignore-line
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getOption($name, $default = null)
     {
         return $this->notification->getOption($name, $default);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setOption($name, $value)
     {
-        $this->notification->setOption($name, $value);
+        return $this->notification->setOption($name, $value); // @phpstan-ignore-line
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function unsetOption($name)
     {
-        $this->notification->unsetOption($name);
+        return $this->notification->unsetOption($name); // @phpstan-ignore-line
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function toArray()
     {
         $array = array(
@@ -194,21 +255,5 @@ final class Envelope implements NotificationInterface
         }
 
         return $array;
-    }
-
-    /**
-     * Dynamically call methods on the notification
-     *
-     * @param string $method
-     * @param mixed[] $parameters
-     *
-     * @return mixed
-     */
-    public function __call($method, array $parameters)
-    {
-        /** @var callable $callback */
-        $callback = array($this->getNotification(), $method);
-
-        return call_user_func_array($callback, $parameters);
     }
 }
